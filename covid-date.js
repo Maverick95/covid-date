@@ -1,3 +1,14 @@
+/* Definitions for use in date-difference functions - 01/01/2020 is definitely a Wednesday. */
+
+
+const start_2020_date = new CovidDate(2020, 1, 1);
+const start_2020_day = 2;
+
+
+/* CovidDate class definition. */
+/* Only handles dates from 2020 onwards - this was a cheat to calculate weekdays quicker. */
+
+
 class CovidDate {
 
     constructor(y, m, d, hh, mm, ss) {
@@ -118,6 +129,9 @@ const covidCompare = (d1, d2) => {
 
 const covidCheckShort = (s) => {
 
+    /* Will return a CovidDate if it possibly can, by replacing invalid
+     * numeric inputs (see CovidDate constructor). */
+
   var y, m, d;
 
   if (s.length !== 10) {
@@ -126,9 +140,9 @@ const covidCheckShort = (s) => {
 
   if (s.charAt(4) !== '-' ||
     s.charAt(7) !== '-' ||
-    isNaN(y = parseInt(s.substring(0, 4))) || y < 2020 ||
-    isNaN(m = parseInt(s.substring(5, 7))) || m <= 0 ||
-    isNaN(d = parseInt(s.substring(8))) || d <= 0) {
+    isNaN(y = parseInt(s.substring(0, 4))) ||
+    isNaN(m = parseInt(s.substring(5, 7))) ||
+    isNaN(d = parseInt(s.substring(8)))) {
     return;
   }
 
@@ -137,6 +151,9 @@ const covidCheckShort = (s) => {
 }
 
 const covidCheckLong = (s) => {
+
+    /* Will return a CovidDate if it possibly can, by replacing invalid
+    * numeric inputs (see CovidDate constructor). */
 
   var y, m, d, hh, mm, ss;
 
@@ -149,12 +166,12 @@ const covidCheckLong = (s) => {
     s.charAt(10) != ' ' ||
     s.charAt(13) != ':' ||
     s.charAt(16) != ':' ||
-    isNaN(y = parseInt(s.substring(0, 4))) || y < 2020 ||
-    isNaN(m = parseInt(s.substring(5, 7))) || m <= 0 ||
-    isNaN(d = parseInt(s.substring(8, 10))) || d <= 0 ||
-    isNaN(hh = parseInt(s.substring(11, 13))) || hh < 0 ||
-    isNaN(mm = parseInt(s.substring(14, 16))) || mm < 0 ||
-    isNaN(ss = parseInt(s.substring(17))) || ss < 0) {
+    isNaN(y = parseInt(s.substring(0, 4))) ||
+    isNaN(m = parseInt(s.substring(5, 7))) ||
+    isNaN(d = parseInt(s.substring(8, 10))) ||
+    isNaN(hh = parseInt(s.substring(11, 13))) ||
+    isNaN(mm = parseInt(s.substring(14, 16))) ||
+    isNaN(ss = parseInt(s.substring(17)))) {
     return;
   }
 
@@ -162,7 +179,9 @@ const covidCheckLong = (s) => {
 
 }
 
+
 /* Helper functions for covidDayDiff. */
+
 
 const daysInYear = (y) => 365 + (!(y % 4) && !(!(y % 100) && y % 400) ? 1 : 0);
 
@@ -182,6 +201,11 @@ const daysInMonth = (y, m) => {
     }
 };
 
+
+/* 'Days Passed' should be interpreted as the 1-based index of the day in the year,
+ * e.g. Jan 1st returns 1, Jan 2nd returns 2, etc. */
+
+
 const daysPassedInYear = (y, m, d) => {
 
     var dnd = 0;
@@ -196,9 +220,13 @@ const daysLeftInYear = (y, m, d) => daysInYear(y) - daysPassedInYear(y, m, d);
 
 const daysLeftInMonth = (y, m, d) => daysInMonth(y, m) - d;
 
+
+/* For comparison functions with d1 and d2 below, we are only interested one way, i.e. d1 <= d2. */
+
+
 const covidDayDiff = (d1, d2) => {
 
-    // Assumption is d1 <= d2.
+    // Assumption is d1 <= d2, account otherwise
 
     if (covidCompare(d1, d2) > 0) { return; }
 
@@ -236,20 +264,11 @@ const covidDayDiff = (d1, d2) => {
 
 }
 
-/* Helpers for Same/Start functions. */
 
-const start_2020_date = new CovidDate(2020, 1, 1);
-const start_2020_day = 2;
-
-/* Assumes d1 is a Monday and therefore 'week start' comparison. */
-
-const sameWeek = (d1, d2) => covidDayDiff(d1, d2) < 7;
-
+const sameWeek = (d1, d2) => covidDayDiff(d1, d2) < 7 && d1.weekday() <= d2.weekday();
 const sameMonth = (d1, d2) => d1.year === d2.year && d1.month === d2.month;
-
 const sameYear = (d1, d2) => d1.year === d2.year;
 
-/* Assume d1 is in 2020. */
 
 const startWeek = (d1) => {
 
@@ -262,13 +281,13 @@ const startWeek = (d1) => {
 
     }
 
-    return new CovidDate(sy, sm, sd);
+    return new CovidDate(sy, sm, sd, 0, 0, 0);
 
 };
 
-const startMonth = (d1) => new CovidDate(d1.year, d1.month, 1);
+const startMonth = (d1) => new CovidDate(d1.year, d1.month, 1, 0, 0, 0);
 
-const startYear = (d1) => new CovidDate(d1.year, 1, 1);
+const startYear = (d1) => new CovidDate(d1.year, 1, 1, 0, 0, 0);
 
 
 exports.covidDate = (y, m, d, hh, mm, ss) => new CovidDate(y, m, d, hh, mm, ss);
@@ -277,6 +296,9 @@ exports.covidNow = covidNow;
 exports.covidCompare = covidCompare;
 exports.covidCheckShort = covidCheckShort;
 exports.covidCheckLong = covidCheckLong;
+
+exports.daysInMonth = daysInMonth;
+exports.daysInYear = daysInYear;
 exports.covidDayDiff = covidDayDiff;
 
 exports.sameWeek = sameWeek;
@@ -286,9 +308,4 @@ exports.sameYear = sameYear;
 exports.startWeek = startWeek;
 exports.startMonth = startMonth;
 exports.startYear = startYear;
-
-exports.daysInMonth = daysInMonth;
-exports.daysInYear = daysInYear;
-
-
 
