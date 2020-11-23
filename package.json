@@ -1,0 +1,14 @@
+{
+  "name": "covid-date",
+  "version": "1.0.0",
+  "description": "Contains date functionality required for a personal project",
+  "author": {
+    "name": "Nick Emmerson",
+    "email": "nickemmerson619@hotmail.com"
+  },
+  "main": "covid-date",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Maverick95/covid-date.git"
+  }
+}
