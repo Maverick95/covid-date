@@ -1,8 +1,5 @@
 class CovidDate {
 
-  year = 0; month = 0; day = 0;
-  hour = 0; minute = 0; second = 0;
-
     constructor(y, m, d, hh, mm, ss) {
 
         this.year = y; this.month = m; this.day = d;
